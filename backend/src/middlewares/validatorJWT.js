@@ -1,18 +1,21 @@
+// verifyJWT.js
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config/config.js";
 import { user } from "../models/user.model.js";
 import color from "chalk";
 
-export default async (req, res, next) => {
+export const validatorJWT = async (req, res, next) => {
   try {
     const token = req.cookies.authToken || req.session.token;
-    if (!token) return res.status(403).json({ message: "No tienes autorización" });
+    if (!token)
+      return res.status(403).json({ message: "No tienes autorización" });
 
     const decoded = jwt.verify(token, SECRET_KEY);
     console.log("Decoded token:", decoded);
 
     const userSearched = await user.findById(decoded.id).exec();
-    if (!userSearched) return res.status(401).json({ message: "Usuario no encontrado" });
+    if (!userSearched)
+      return res.status(401).json({ message: "Usuario no encontrado" });
 
     req.user = userSearched;
     next();

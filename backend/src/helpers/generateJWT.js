@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config/config.js";
 
-export default (id) => {
+export default (id, role) => {
   return new Promise((resolve, reject) => {
     const payLoad = { id, role };
     jwt.sign(

@@ -121,7 +121,10 @@ export const secureAccess = (req, res) => {
   try {
     if (!req.user)
       return res.json({ message: "El usuario no a iniciado session " });
-    res.json({ message: "acceso concedido ", user: req.user });
+    res.json({
+      message: "acceso concedido ",
+      user: { id: req.user._id, role: req.user.role },
+    });
   } catch (error) {
     console.log(
       color.blue(

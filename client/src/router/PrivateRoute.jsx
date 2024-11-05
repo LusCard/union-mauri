@@ -1,35 +1,29 @@
-import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
-import { getSession } from "../api/auth";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 import { Navigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
-const PrivateRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+const PrivateRoute = ({ children, requiredRoles }) => {
+  const { user, loading } = useContext(UserContext);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await getSession();
-        setIsAuthenticated(!!res.user);
-      } catch (error) {
-        console.error("Error checking session:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
   if (loading) {
     return <div>Cargando...</div>;
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  if (requiredRoles && !requiredRoles.includes(user.role)) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
 };
 
 PrivateRoute.propTypes = {
   children: PropTypes.node.isRequired,
+  requiredRole: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default PrivateRoute;

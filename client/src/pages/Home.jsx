@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Edit2, LogOut, Plus, Camera } from "lucide-react";
 import { updateProfilePicture, getLoggedUser, logoutUser } from "../api/auth";
 import {
@@ -32,7 +32,7 @@ const Home = () => {
 
   useEffect(() => {
     fetchUser();
-    fetchPublications(); // Cargar todas las publicaciones al inicio
+    fetchPublications();
   }, []);
 
   const fetchUser = async () => {
@@ -54,8 +54,7 @@ const Home = () => {
         category === "all"
           ? await fetchAllPublications()
           : await fetchPublicationsByCategory(category);
-
-      setPublications(data); // Asegúrate de que `data` contenga las publicaciones
+      setPublications(data);
     } catch (error) {
       toast.error("Error al cargar publicaciones");
     } finally {
@@ -65,7 +64,7 @@ const Home = () => {
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    fetchPublications(category); // Llama a la función para cargar publicaciones por categoría
+    fetchPublications(category);
   };
 
   const handleProfilePictureChange = (e) => {
@@ -102,14 +101,13 @@ const Home = () => {
       const response = await logoutUser();
       if (response.success) {
         toast.success("Sesión cerrada exitosamente");
-        setTimeout(() => navigate("/login"), 1500);
+        setTimeout(() => navigate("/"), 1500);
       }
     } catch (error) {
       toast.error("Error al cerrar sesión");
     }
   };
 
-  // Filtrado de publicaciones por categoría
   const filteredPublications =
     selectedCategory === "all"
       ? publications
@@ -281,17 +279,78 @@ const Home = () => {
             {loadingPublications ? (
               <p>Cargando publicaciones...</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPublications.map((pub) => (
-                  <div
-                    key={pub.id}
-                    className="bg-white shadow-md rounded-lg p-4"
-                  >
-                    <h3 className="font-semibold text-lg">{pub.title}</h3>
-                    <p className="text-gray-600">{pub.description}</p>
-                    <p className="text-gray-500">{pub.category}</p>
-                  </div>
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-10">
+                {filteredPublications.map((pub) => {
+                  const startDate = new Date(pub.startDates);
+                  const endDate = new Date(pub.endDates);
+                  const formattedStartDate = startDate.toLocaleDateString();
+                  const formattedStartTime = startDate.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  const formattedEndDate = endDate.toLocaleDateString();
+                  const formattedEndTime = endDate.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+
+                  const categoryData = categories.find(
+                    (cat) => cat.id === pub.category
+                  );
+
+                  return (
+                    <motion.div
+                      key={pub._id}
+                      className="bg-white shadow-lg rounded-lg p-4 relative w-full h-[350px] mx-auto"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {pub.medias.photos.length > 0 && (
+                        <div className="relative">
+                          <img
+                            src={pub.medias.photos[0].url}
+                            alt={pub.titles}
+                            className="w-full h-52 object-cover rounded-t-lg"
+                          />
+                          <motion.div
+                            className="absolute bottom-2 right-2 bg-blue-400/80 text-white px-1 py-1 rounded-full text-xs font-medium shadow-md flex items-center gap-1 cursor-pointer overflow-hidden"
+                            initial={{ width: "2rem" }}
+                            whileHover={{ width: "auto" }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <span
+                              className="text-lg opacity-90"
+                              style={{ fontSize: "20px" }}
+                            >
+                              {categoryData?.icon || "🎉"}
+                            </span>
+                            <span className="ml-2 whitespace-nowrap">
+                              {categoryData?.name || "Categoría"}
+                            </span>
+                          </motion.div>
+                        </div>
+                      )}
+                      <h3 className="font-semibold text-lg mt-3 mb-1 text-center">
+                        {pub.titles}
+                      </h3>
+                      <p className="text-gray-600 text-sm text-center">
+                        📅 Fecha de Inicio: {formattedStartDate} -{" "}
+                        {formattedStartTime}
+                      </p>
+                      <p className="text-gray-600 text-sm text-center">
+                        📅 Fecha de Fin: {formattedEndDate} - {formattedEndTime}
+                      </p>
+                      <motion.button
+                        className="mt-4 flex items-center justify-center mx-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full hover:shadow-lg transition-all duration-300 font-semibold"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Ver más sobre el evento <span className="ml-2">➡️</span>
+                      </motion.button>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </motion.div>

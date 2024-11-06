@@ -6,7 +6,7 @@ import {
   secureAccess,
   profileUpdater,
   getLoggedUser,
-} from "../controllers/user.controllers.js";
+} from "../controllers/user.controller.js";
 import { validatorJWT } from "../middlewares/validatorJWT.js";
 
 const userRouter = Router();

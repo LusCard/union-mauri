@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getAllRequests, acceptRequest, denyRequest } from "../api/requests"; // Adjust API paths as needed
+import { getAllRequests, acceptRequest, denyRequest } from "../api/requests";
 
 const Requests = () => {
   const [requests, setRequests] = useState([]);
@@ -11,7 +11,7 @@ const Requests = () => {
     const fetchRequests = async () => {
       try {
         const response = await getAllRequests();
-        setRequests(response.data);
+        setRequests(response);
       } catch (error) {
         toast.error("Error al cargar las peticiones.");
       }
@@ -33,7 +33,7 @@ const Requests = () => {
   const handleDeny = async (id) => {
     try {
       const response = await denyRequest(id);
-      toast.success(response.data.message);
+      toast.success(response.message);
       setRequests((prev) => prev.filter((req) => req._id !== id));
     } catch (error) {
       toast.error("Error al negar la petición.");

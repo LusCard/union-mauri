@@ -6,7 +6,7 @@ import {
   postUpdater,
   postRemover,
   categoryPostGetter,
-} from "../controllers/publications.controllers.js";
+} from "../controllers/publications.controller.js";
 import { validatorJWT } from "../middlewares/validatorJWT.js";
 
 const publicationsRoutes = Router();

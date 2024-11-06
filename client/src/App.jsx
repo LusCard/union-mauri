@@ -7,6 +7,8 @@ import PublishPage from "./pages/PublishPage";
 import PrivateRoute from "./router/PrivateRoute";
 import PublicRoute from "./router/PublicRoute";
 import HomeUser from "./pages/HomeUser";
+import Requests from "./pages/Requests";
+import SendRequest from "./pages/SendRequest";
 
 const App = () => {
   return (
@@ -16,7 +18,7 @@ const App = () => {
           <Route
             path="/home"
             element={
-              <PrivateRoute requiredRole={["user", "admin"]}>
+              <PrivateRoute requiredRoles={["user", "admin"]}>
                 <Home />
               </PrivateRoute>
             }
@@ -24,16 +26,24 @@ const App = () => {
           <Route
             path="/publish"
             element={
-              <PrivateRoute requiredRole="admin">
+              <PrivateRoute requiredRoles={["admin"]}>
                 <PublishPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/send-request"
+            element={
+              <PrivateRoute requiredRoles={["user"]}>
+                <SendRequest />
               </PrivateRoute>
             }
           />
           <Route
             path="/admin-dashboard"
             element={
-              <PrivateRoute requiredRole="admin">
-                <p>Hello Admin good to see you</p>
+              <PrivateRoute requiredRoles={["admin"]}>
+                <Requests />
               </PrivateRoute>
             }
           />

@@ -4,7 +4,7 @@ import {
   creatorRequest,
   denialsRequests,
   getAllRequest,
-} from "../controllers/req.controllers.js";
+} from "../controllers/req.controller.js";
 import { validatorJWT } from "../middlewares/validatorJWT.js";
 const reqRouter = Router();
 

@@ -8,3 +8,4 @@ export const API_SECRET = process.env.API_SECRET;
 export const API_KEY = process.env.API_KEY;
 export const CLOUD_NAME = process.env.CLOUD_NAME;
 export const IS_PRODUCTION = process.env.NODE_ENV;
+export const CLUSTER = process.env.CLUSTER;

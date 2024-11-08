@@ -6,7 +6,7 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [load, setLoad] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -17,14 +17,14 @@ export const UserProvider = ({ children }) => {
       } catch (error) {
         console.error("Error fetching session:", error);
       } finally {
-        setLoading(false);
+        setLoad(false);
       }
     };
     fetchUser();
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, loading }}>
+    <UserContext.Provider value={{ user, load }}>
       {children}
     </UserContext.Provider>
   );

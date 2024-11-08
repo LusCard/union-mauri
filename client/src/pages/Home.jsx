@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Edit2, LogOut, Plus, Camera } from "lucide-react";
@@ -8,7 +8,7 @@ import {
   fetchPublicationsByCategory,
 } from "../api/publish";
 import { toast, Toaster } from "react-hot-toast";
-
+import { UserContext } from "../context/UserContext";
 const Home = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -21,8 +21,23 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isEditing, setIsEditing] = useState(false);
 
+  const { user, load } = useContext(UserContext);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!load && user) {
+    }
+  }, [user, load]);
+
+  if (load) return <div>Loading...</div>;
+
+  const handleNavigate = () => {
+    if (user.role === "admin") {
+      navigate("/publish");
+    } else if (user.role === "user") {
+      navigate("/send-request");
+    }
+  };
   const categories = [
     { id: "musical", name: "Eventos Musicales", icon: "🎵" },
     { id: "charity", name: "Eventos Caritativos", icon: "💝" },
@@ -113,6 +128,23 @@ const Home = () => {
       ? publications
       : publications.filter((pub) => pub.category === selectedCategory);
 
+  const handleRoleRendering = () => {
+    if (user.role === "admin") {
+      return (
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            navigate("/admin-dashboard");
+          }}
+          className="bg-gradient-to-r from-green-600 to-yellow-400 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+        >
+          <Plus size={20} />
+          Ver Peticiones
+        </motion.button>
+      );
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-right" />
@@ -133,12 +165,13 @@ const Home = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/publish")}
+            onClick={handleNavigate}
             className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
           >
             <Plus size={20} />
             Crear Publicación
           </motion.button>
+          {handleRoleRendering()}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

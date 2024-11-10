@@ -12,6 +12,7 @@ const Requests = () => {
       try {
         const response = await getAllRequests();
         setRequests(response);
+        console.log("This is the data of the requests:", response);
       } catch (error) {
         toast.error("Error al cargar las peticiones.");
       }
@@ -23,7 +24,7 @@ const Requests = () => {
   const handleAccept = async (id) => {
     try {
       const response = await acceptRequest(id);
-      toast.success(response.data.message);
+      toast.success(response.message);
       setRequests((prev) => prev.filter((req) => req._id !== id));
     } catch (error) {
       toast.error("Error al aceptar la petición.");
@@ -54,11 +55,64 @@ const Requests = () => {
               className="bg-white p-6 mb-4 rounded-lg shadow-lg"
             >
               <p>
-                <strong>Usuario:</strong> {req.user}
+                <strong>Título:</strong> {req.titles}
+              </p>
+              <p>
+                <strong>Name:</strong> {req.idUsers.usernames}
+              </p>
+              <p>
+                <strong>Req ID:</strong> {req._id}
               </p>
               <p>
                 <strong>Descripción:</strong> {req.descriptions}
               </p>
+              <p>
+                <strong>Ubicación:</strong> Lat: {req.locations?.lat}, Long:{" "}
+                {req.locations?.long}
+              </p>
+              <p>
+                <strong>Categoría:</strong> {req.category}
+              </p>
+              <p>
+                <strong>Fecha de inicio:</strong>{" "}
+                {new Date(req.startDates).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Fecha de fin:</strong>{" "}
+                {new Date(req.endDates).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Fotos:</strong>
+              </p>
+              <ul>
+                {req.medias.photos.map((photo) => (
+                  <li key={photo._id}>
+                    <a
+                      href={photo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {photo.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p>
+                <strong>Videos:</strong>
+              </p>
+              <ul>
+                {req.medias.videos.map((video) => (
+                  <li key={video._id}>
+                    <a
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {video.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={() => handleAccept(req._id)}

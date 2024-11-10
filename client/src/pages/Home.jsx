@@ -343,7 +343,7 @@ const Home = () => {
                         <div className="relative">
                           <img
                             src={pub.medias.photos[0].url}
-                            alt={pub.titles}
+                            alt={pub.titles || "Placeholder"}
                             className="w-full h-52 object-cover rounded-t-lg"
                           />
                           <motion.div

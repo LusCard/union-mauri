@@ -93,8 +93,10 @@ const SendRequest = () => {
     mediaFiles.photos.forEach((file) => submissionData.append("media", file));
     mediaFiles.videos.forEach((file) => submissionData.append("media", file));
 
+    console.log(submissionData);
     try {
       const response = await sendRequest(submissionData);
+      console.log("This is the submision response", response);
       if (response && response.message === "petición enviada con éxitos") {
         toast.success("¡Petición enviada exitosamente!");
         setFormData({

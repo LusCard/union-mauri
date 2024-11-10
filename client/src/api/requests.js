@@ -10,13 +10,12 @@ const getHeaders = () => {
 };
 
 // Send a new request
-export const sendRequest = async (data) => {
+export const sendRequest = async (formData) => {
   try {
     const response = await fetch(API_BASE_URL, {
       method: "POST",
-      headers: getHeaders(),
       credentials: "include",
-      body: JSON.stringify(data),
+      body: formData,
     });
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
     return await response.json();
@@ -34,7 +33,10 @@ export const getAllRequests = async () => {
       credentials: "include",
     });
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-    return await response.json();
+
+    const data = await response.json();
+    console.log("Fetched requests:", data);
+    return data;
   } catch (error) {
     console.error("Error fetching requests:", error);
     throw error;
@@ -44,7 +46,7 @@ export const getAllRequests = async () => {
 // Accept a request and create a publication
 export const acceptRequest = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/accept/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: "POST",
       headers: getHeaders(),
       credentials: "include",
@@ -60,7 +62,7 @@ export const acceptRequest = async (id) => {
 // Deny a request
 export const denyRequest = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/deny/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: "DELETE",
       headers: getHeaders(),
       credentials: "include",

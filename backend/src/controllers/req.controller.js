@@ -129,10 +129,14 @@ export const acceptRequest = async (req, res) => {
 
     // Create publication with request data
     const newPublication = new publications({
-      user: foundRequest.user,
-      email: foundRequest.email,
+      titles: foundRequest.titles,
+      idUsers: foundRequest.idUsers,
       descriptions: foundRequest.descriptions,
-      idUser: foundRequest.idUsers._id,
+      locations: foundRequest.locations,
+      category: foundRequest.category,
+      startDates: foundRequest.startDates,
+      endDates: foundRequest.endDates,
+      medias: foundRequest.medias,
     });
     await newPublication.save();
 

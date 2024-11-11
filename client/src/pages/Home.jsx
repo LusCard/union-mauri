@@ -9,6 +9,8 @@ import {
 } from "../api/publish";
 import { toast, Toaster } from "react-hot-toast";
 import { UserContext } from "../context/UserContext";
+import placeholderImg from "../assets/img.jpg";
+import { Modal } from "../components/Modal.jsx";
 const Home = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -20,6 +22,8 @@ const Home = () => {
   const [loadingPublications, setLoadingPublications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isEditing, setIsEditing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPub, setSelectedPub] = useState(null);
 
   const { user, load } = useContext(UserContext);
   const navigate = useNavigate();
@@ -70,6 +74,7 @@ const Home = () => {
           ? await fetchAllPublications()
           : await fetchPublicationsByCategory(category);
       setPublications(data);
+      console.log("Publications fetched:", data);
     } catch (error) {
       toast.error("Error al cargar publicaciones");
     } finally {
@@ -144,6 +149,16 @@ const Home = () => {
         </motion.button>
       );
     }
+  };
+
+  const handleModalOpen = (pub) => {
+    setSelectedPub(pub);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedPub(null);
   };
   return (
     <div className="min-h-screen bg-gray-50">
@@ -375,12 +390,39 @@ const Home = () => {
                         📅 Fecha de Fin: {formattedEndDate} - {formattedEndTime}
                       </p>
                       <motion.button
+                        onClick={() => handleModalOpen(pub)}
                         className="mt-4 flex items-center justify-center mx-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full hover:shadow-lg transition-all duration-300 font-semibold"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Ver más sobre el evento <span className="ml-2">➡️</span>
                       </motion.button>
+
+                      {/* Modal for "Ver más sobre el evento" */}
+                      {isModalOpen && selectedPub === pub && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
+                            <button
+                              onClick={handleModalClose}
+                              className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1"
+                            >
+                              X
+                            </button>
+                            <h3 className="text-xl font-bold mb-4">
+                              {pub.titles}
+                            </h3>
+                            <p>{pub.description}</p>
+                            <p className="mt-4 text-sm text-gray-600">
+                              Fecha de Inicio:{" "}
+                              {new Date(pub.startDates).toLocaleString()}
+                            </p>
+                            <p className="mt-1 text-sm text-gray-600">
+                              Fecha de Fin:{" "}
+                              {new Date(pub.endDates).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </motion.div>
                   );
                 })}

@@ -12,7 +12,9 @@ import color from "chalk";
 
 export const publicationGetter = async (req, res) => {
   try {
-    const publicCollections = await publications.find().populate('idUsers', 'username email'); // Poblamos el campo idUsers
+    const publicCollections = await publications
+      .find()
+      .populate("idUsers", "username email"); // Poblamos el campo idUsers
     if (publicCollections.length === 0)
       return res.status(404).json({ message: "No hay eventos que mostrar" });
     return res.status(200).json(publicCollections);
@@ -36,7 +38,9 @@ export const postFinderById = async (req, res) => {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) return res.status(404).json({ message: "Invalid ID" });
 
-    const publicationsSearched = await publications.findById(id).populate('idUsers', 'username email'); // Poblamos el campo idUsers
+    const publicationsSearched = await publications
+      .findById(id)
+      .populate("idUsers", "username email"); // Poblamos el campo idUsers
     if (!publicationsSearched)
       return res.status(404).json({ message: "El evento no existe" });
 
@@ -57,41 +61,61 @@ export const postFinderById = async (req, res) => {
 
 export const postCreator = async (req, res) => {
   try {
-    console.log('Request Body:', req.body);
+    console.log("Request Body:", req.body);
     const { titles, descriptions, category, startDates, endDates } = req.body;
     const { lat, long } = JSON.parse(req.body.locations);
     const idUser = req.user._id;
 
     // Validar campos obligatorios
-    if (!titles || !descriptions || !lat || !long || !category || !startDates || !endDates) {
+    if (
+      !titles ||
+      !descriptions ||
+      !lat ||
+      !long ||
+      !category ||
+      !startDates ||
+      !endDates
+    ) {
       return res.status(400).json({ message: "Faltan campos obligatorios" });
     }
 
-    const mediaFiles = req.files?.media ? (Array.isArray(req.files.media) ? req.files.media : [req.files.media]) : [];
-    console.log('Media Files:', mediaFiles);
+    const mediaFiles = req.files?.media
+      ? Array.isArray(req.files.media)
+        ? req.files.media
+        : [req.files.media]
+      : [];
+    console.log("Media Files:", mediaFiles);
 
     const photos = [];
     const videos = [];
 
     if (mediaFiles.length > 0) {
-      await Promise.all(mediaFiles.map(async (file) => {
-        try {
-          console.log('Processing file:', file);
-          let result;
-          if (file.mimetype.startsWith("image/")) {
-            result = await uploadImage(file.tempFilePath);
-            photos.push({ _id: new mongoose.Types.ObjectId().toString(), url: result.secure_url }); // Agrega objeto de foto
-          } else if (file.mimetype.startsWith("video/")) {
-            result = await uploadVideo(file.tempFilePath);
-            videos.push({ _id: new mongoose.Types.ObjectId().toString(), url: result.secure_url }); // Agrega objeto de video
+      await Promise.all(
+        mediaFiles.map(async (file) => {
+          try {
+            console.log("Processing file:", file);
+            let result;
+            if (file.mimetype.startsWith("image/")) {
+              result = await uploadImage(file.tempFilePath);
+              photos.push({
+                _id: new mongoose.Types.ObjectId().toString(),
+                url: result.secure_url,
+              }); // Agrega objeto de foto
+            } else if (file.mimetype.startsWith("video/")) {
+              result = await uploadVideo(file.tempFilePath);
+              videos.push({
+                _id: new mongoose.Types.ObjectId().toString(),
+                url: result.secure_url,
+              }); // Agrega objeto de video
+            }
+          } catch (uploadError) {
+            console.error("Error al procesar el archivo:", uploadError);
+            throw new Error("Error al procesar el archivo multimedia");
           }
-        } catch (uploadError) {
-          console.error("Error al procesar el archivo:", uploadError);
-          throw new Error("Error al procesar el archivo multimedia");
-        }
-      }));
+        })
+      );
     } else {
-      console.log('No media files to process.');
+      console.log("No media files to process.");
     }
 
     const newPublication = new publications({
@@ -111,19 +135,25 @@ export const postCreator = async (req, res) => {
     await newPublication.save();
 
     // Mover la eliminación de archivos aquí para asegurarte de que solo se eliminen si la creación fue exitosa
-    await Promise.all(mediaFiles.map(file => fs.unlink(file.tempFilePath)));
+    await Promise.all(mediaFiles.map((file) => fs.unlink(file.tempFilePath)));
 
-    return res.status(201).json({ message: "Publicación creada exitosamente", publicationId: newPublication._id });
+    return res.status(201).json({
+      message: "Publicación creada exitosamente",
+      publicationId: newPublication._id,
+    });
   } catch (error) {
     console.error("Error al crear la publicación", error);
-    return res.status(500).json({ message: "Error inesperado en el servidor. Intente más tarde" });
+    return res
+      .status(500)
+      .json({ message: "Error inesperado en el servidor. Intente más tarde" });
   }
 };
 
 export const postUpdater = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, lat, long, category, startDate, endDate } = req.body;
+    const { title, description, lat, long, category, startDate, endDate } =
+      req.body;
     const isValid = mongoose.Types.ObjectId.isValid(id);
 
     if (!isValid) return res.status(404).json({ message: "Invalid ID" });
@@ -290,13 +320,35 @@ export const categoryPostGetter = async (req, res) => {
   try {
     const { category } = req.params;
     console.log("Categoría buscada:", category);
-    const publicationsSearched = await publications.find({ category: category }).exec();
+    const publicationsSearched = await publications.find({ category }).exec();
     if (!publicationsSearched.length) {
-      return res.status(404).json({ message: "No hay eventos con esa categoría" });
+      return res
+        .status(404)
+        .json({ message: "No hay eventos con esa categoría" });
     }
+    console.log(publicationsSearched);
     return res.status(200).json(publicationsSearched);
   } catch (error) {
-    console.error("Error en el controlador de mostrar eventos por categorías:", error);
+    console.error(
+      "Error en el controlador de mostrar eventos por categorías:",
+      error
+    );
     return res.status(500).json({ message: "Error inesperado en el servidor" });
   }
+};
+
+export const findByUserId = (req, res) => {
+  const userId = req.params.userId;
+  console.log("ID de usuario buscado:", userId);
+  publications
+    .find({ user: userId })
+    .exec()
+    .then((publications) => res.status(200).json(publications))
+    .catch((err) => {
+      console.error(
+        "Error en el controlador para mostrar eventos por usuario:",
+        err
+      );
+      res.status(500).json({ message: "Error inesperado en el servidor" });
+    });
 };

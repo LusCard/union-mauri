@@ -8,12 +8,14 @@ import {
 } from "../api/publish";
 
 const HomeUser = () => {
+  // State variables to manage publications, loading state, and selected category
   const [publications, setPublications] = useState([]);
   const [loadingPublications, setLoadingPublications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const navigate = useNavigate();
 
+  // List of categories for filtering publications
   const categories = [
     { id: "musical", name: "Eventos Musicales", icon: "🎵" },
     { id: "charity", name: "Eventos Caritativos", icon: "💝" },
@@ -21,10 +23,12 @@ const HomeUser = () => {
     { id: "social", name: "Eventos Sociales", icon: "🎉" },
   ];
 
+  // Fetch publications when the component mounts or when the category changes
   useEffect(() => {
     fetchPublications();
   }, []);
 
+  // Function to fetch publications based on the selected category
   const fetchPublications = async (category = "all") => {
     setLoadingPublications(true);
     try {
@@ -40,24 +44,27 @@ const HomeUser = () => {
     }
   };
 
+  // Handle category change and fetch filtered publications
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
     fetchPublications(category);
   };
 
+  // Filter publications based on the selected category
   const filteredPublications =
     selectedCategory === "all"
       ? publications
       : publications.filter((pub) => pub.category === selectedCategory);
 
-  // Ordenar publicaciones de más recientes a más antiguas
+  // Sort filtered publications by start date (most recent first)
   const sortedPublications = filteredPublications.sort(
     (a, b) => new Date(b.startDates) - new Date(a.startDates)
   );
 
-  const popularEvents = publications.slice(0, 5).reverse(); // Muestra la última publicación primero
+  // Slice the publications to show the top 5 most popular events
+  const popularEvents = publications.slice(0, 5).reverse();
 
-  // Eventos por finalizar
+  // Filter upcoming events based on the current date
   const now = new Date();
   const upcomingEvents = publications
     .filter((pub) => {
@@ -68,24 +75,27 @@ const HomeUser = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Toast notifications */}
       <Toaster position="top-right" />
 
-      {/* Banner */}
+      {/* Banner Section */}
       <div className="bg-purple-600 text-white text-center py-4 mb-6">
         <h1 className="text-4xl font-bold">Bienvenido a ViewsEvents</h1>
         <p className="mt-2">Descubre los mejores eventos en tu área</p>
       </div>
 
       <div className="container mx-auto px-4 py-8 flex justify-between">
-        {/* Tarjeta de Usuario */}
+        {/* User Profile Card */}
         <div className="w-1/4 mr-4">
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
+            {/* Placeholder profile image */}
             <img
               src="https://i.pinimg.com/564x/13/b4/08/13b408f0ad453542c0d8fa8e62602245.jpg"
               alt="Perfil"
               className="w-24 h-24 rounded-full bg-gray-300"
             />
             <h2 className="text-xl font-semibold mt-4">Invitado</h2>
+            {/* Login and Register buttons */}
             <div className="mt-4 flex space-x-4">
               <button
                 onClick={() => navigate("/login")}
@@ -105,23 +115,25 @@ const HomeUser = () => {
             </p>
           </div>
 
-          {/* Tarjeta de Eventos por Finalizar */}
+          {/* Upcoming Events Card */}
           <div className="bg-white shadow-lg rounded-lg p-6 mt-6">
             <h2 className="text-lg font-bold mb-4">Eventos por Finalizar</h2>
             <div className="flex flex-col space-y-2">
+              {/* Render a list of upcoming events */}
               {upcomingEvents.map((event) => {
                 const endDate = new Date(event.endDates);
                 const isExpired = endDate < now;
                 const isAboutToExpire =
-                  endDate - now <= 3 * 24 * 60 * 60 * 1000; // 3 días
+                  endDate - now <= 3 * 24 * 60 * 60 * 1000; // 3 days
 
+                // Determine the status color based on the event's end date
                 let statusColor;
                 if (isExpired) {
-                  statusColor = "bg-red-500"; // Finalizado
+                  statusColor = "bg-red-500"; // Event has ended
                 } else if (isAboutToExpire) {
-                  statusColor = "bg-orange-500"; // Por finalizar
+                  statusColor = "bg-orange-500"; // Event ending soon
                 } else {
-                  statusColor = "bg-green-500"; // Disponible
+                  statusColor = "bg-green-500"; // Event is available
                 }
 
                 return (
@@ -140,13 +152,14 @@ const HomeUser = () => {
           </div>
         </div>
 
-        {/* Sección de Publicaciones */}
+        {/* Publications Section */}
         <div className="w-1/2">
           <h2 className="text-2xl font-bold text-center mb-6">Publicaciones</h2>
           {loadingPublications ? (
             <p className="text-center">Cargando publicaciones...</p>
           ) : (
             <div className="flex flex-col space-y-6">
+              {/* Render a list of sorted publications */}
               {sortedPublications.map((pub) => {
                 const startDate = new Date(pub.startDates);
                 const endDate = new Date(pub.endDates);
@@ -161,6 +174,7 @@ const HomeUser = () => {
                   minute: "2-digit",
                 });
 
+                // Get category data for the publication
                 const categoryData = categories.find(
                   (cat) => cat.id === pub.category
                 );
@@ -173,7 +187,7 @@ const HomeUser = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4 }}
                   >
-                    {/* Imagen y etiqueta de categoría */}
+                    {/* Display the publication's main image and category tag */}
                     {pub.medias?.photos?.[0]?.url && (
                       <div className="relative">
                         <img
@@ -199,6 +213,7 @@ const HomeUser = () => {
                     <h3 className="font-semibold text-lg mt-3 mb-1 text-center">
                       {pub.titles}
                     </h3>
+                    {/* Display the publication's start and end dates */}
                     <p className="text-gray-600 text-xs text-center">
                       📅 Fecha de Inicio: {formattedStartDate} -{" "}
                       {formattedStartTime}
@@ -206,12 +221,14 @@ const HomeUser = () => {
                     <p className="text-gray-600 text-xs text-center">
                       📅 Fecha de Fin: {formattedEndDate} - {formattedEndTime}
                     </p>
+                    {/* Button to view more details about the event */}
                     <motion.button
-                      className="mt-4 flex items-center justify-center mx-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-full hover:shadow-lg transition-all duration-300 font-semibold"
+                      className="mt-4 flex items-center mx-auto px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={() => navigate(`/publication/${pub._id}`)}
                     >
-                      Ver más sobre el evento <span className="ml-2">➡️</span>
+                      Ver Detalles
                     </motion.button>
                   </motion.div>
                 );
@@ -220,60 +237,55 @@ const HomeUser = () => {
           )}
         </div>
 
-        {/* Tarjeta de Categorías */}
+        {/* Popular Events Sidebar */}
         <div className="w-1/4 ml-4">
           <div className="bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Categorías</h2>
-            <div className="space-y-2">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryChange(category.id)}
-                  className={`w-full text-left px-4 py-2 rounded-lg ${
-                    selectedCategory === category.id
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-200 text-gray-800"
-                  }`}
+            <h2 className="text-lg font-bold mb-4">Eventos Populares</h2>
+            <div className="flex flex-col space-y-2">
+              {/* Render a list of popular events */}
+              {popularEvents.map((event) => (
+                <div
+                  key={event._id}
+                  className="flex items-center justify-between p-2 rounded-lg bg-purple-500 text-white"
                 >
-                  {category.icon} {category.name}
-                </button>
+                  <span>{event.titles}</span>
+                  <span className="text-xs">
+                    {new Date(event.startDates).toLocaleDateString()}
+                  </span>
+                </div>
               ))}
+            </div>
+          </div>
+
+          {/* Category Filters */}
+          <div className="bg-white shadow-lg rounded-lg p-6 mt-6">
+            <h2 className="text-lg font-bold mb-4">Filtrar por Categoría</h2>
+            <div className="flex flex-col space-y-2">
+              {/* Render category filter buttons */}
               <button
                 onClick={() => handleCategoryChange("all")}
-                className={`w-full text-left px-4 py-2 rounded-lg ${
+                className={`p-2 rounded-lg ${
                   selectedCategory === "all"
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-200 text-gray-800"
+                    ? "bg-purple-500 text-white"
+                    : "bg-gray-100 text-gray-800"
                 }`}
               >
                 Todos
               </button>
-            </div>
-          </div>
-
-          {/* Top de Eventos Populares */}
-          <div className="bg-white shadow-lg rounded-lg p-6 mt-6">
-            <h2 className="text-sm font-bold mb-4">Top Eventos Populares</h2>
-            <ul className="space-y-2">
-              {popularEvents.map((event) => (
-                <motion.li
-                  key={event._id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-xs"
-                  whileHover={{ scale: 1.02 }}
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategoryChange(category.id)}
+                  className={`p-2 rounded-lg ${
+                    selectedCategory === category.id
+                      ? "bg-purple-500 text-white"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
                 >
-                  <div className="flex items-center">
-                    <span className="text-lg">{event.category.icon}</span>
-                    <span className="ml-2">{event.titles}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="material-icons">people</span>
-                    <span className="ml-1">
-                      {Math.floor(Math.random() * 1000)} seguidores
-                    </span>
-                  </div>
-                </motion.li>
+                  {category.name} {category.icon}
+                </button>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

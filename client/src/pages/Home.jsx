@@ -10,7 +10,6 @@ import {
 import { toast, Toaster } from "react-hot-toast";
 import { UserContext } from "../context/UserContext";
 import placeholderImg from "../assets/img.jpg";
-import { Modal } from "../components/Modal.jsx";
 const Home = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");

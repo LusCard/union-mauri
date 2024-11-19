@@ -12,6 +12,9 @@ const userModel = new mongoose.Schema({
     enum: ["user", "admin"],
   },
   publications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Publications" }],
+  likedPublications: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "Publications" },
+  ],
   profilePicture: {
     _id: { type: String, default: "imagenProyect/afpdiox30acmlfvcskww" },
     url: {

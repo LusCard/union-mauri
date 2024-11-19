@@ -6,6 +6,8 @@ import {
   postUpdater,
   postRemover,
   categoryPostGetter,
+  toggleLike,
+  findByUserId,
 } from "../controllers/publications.controller.js";
 import { validatorJWT } from "../middlewares/validatorJWT.js";
 
@@ -19,5 +21,6 @@ publicationsRoutes.get(
   "/publications/searched/for/category/:category",
   categoryPostGetter
 );
+publicationsRoutes.patch("/publications/:id/like", validatorJWT, toggleLike);
 
 export default publicationsRoutes;

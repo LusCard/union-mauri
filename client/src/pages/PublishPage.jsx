@@ -308,13 +308,17 @@ const Publish = () => {
         {/* Contenedor de Mapa y Medios */}
         <div className="w-full lg:w-1/3 flex flex-col gap-6">
           {/* Mapa */}
-          <div className="bg-white p-4 rounded-lg shadow-2xl border border-gray-200">
+          <div className="bg-white p-4 rounded-lg shadow-2xl border border-gray-200 overflow-hidden">
             <Map setAddress={handleAddressUpdate} />
-            {validationErrors.locations && (
-              <p className="text-red-500 text-xs mt-1">
-                {validationErrors.locations}
-              </p>
-            )}
+            {/* Add some margin or padding below the map to create space */}
+            <div className="mt-4">
+              {/* Address Display */}
+              {validationErrors.locations && (
+                <p className="text-red-500 text-xs mt-1">
+                  {validationErrors.locations}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Media */}

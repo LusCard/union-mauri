@@ -18,7 +18,7 @@ import {
 import { toast, Toaster } from "react-hot-toast";
 import logo from "../assets/Logo1.png";
 import { UserContext } from "../context/UserContext.jsx";
-import { Modal } from "../components/PubModal.jsx";
+import Map from "../components/PubMap.jsx";
 
 const Home = () => {
   const [email, setEmail] = useState("");
@@ -34,9 +34,11 @@ const Home = () => {
   const [likedPublicationIds, setLikedPublicationIds] = useState(new Set());
   const [isMenuOpen, setIsMenuOpen] = useState(null);
   const [userPublications, setUserPublications] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPublication, setSelectedPublication] = useState(null);
+  const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
 
+  const toggleDescription = () => {
+    setIsDescriptionVisible(!isDescriptionVisible);
+  };
   const { user, load } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -231,17 +233,6 @@ const Home = () => {
       ? publications
       : publications.filter((pub) => pub.category === selectedCategory);
 
-  // Function to open the modal with the selected publication data
-  const openModal = (publication) => {
-    setSelectedPublication(publication);
-    setIsModalOpen(true);
-  };
-
-  // Function to close the modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedPublication(null);
-  };
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-right" />
@@ -410,8 +401,8 @@ const Home = () => {
                     const categoryData = categories.find(
                       (cat) => cat.id === pub.category
                     );
-                    const userdata = pub.idUsers || {};
-
+                    const user = pub.idUsers || {};
+                    console.log("Para ver el nombre del owner", user);
                     return (
                       <motion.div
                         key={pub._id}
@@ -424,14 +415,13 @@ const Home = () => {
                         <div className="flex items-center gap-4 mb-4">
                           <img
                             src={
-                              userdata.profilePicture?.url ||
-                              "/default-profile.png"
+                              user.profilePicture?.url || "/default-profile.png"
                             }
-                            alt={userdata.username || "Usuario desconocido"}
+                            alt={user.username || "Usuario desconocido"}
                             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
                           />
                           <span className="text-lg font-semibold text-gray-700">
-                            {userdata.username || "Usuario desconocido"}
+                            {user.username || "Usuario desconocido"}
                           </span>
                         </div>
                         {/* Medios de la publicación (imagen o video) */}
@@ -538,14 +528,17 @@ const Home = () => {
                           {pub.titles}
                         </h3>
                         {/* Fechas */}
-                        <p className="text-gray-600 text-sm text-left mb-2">
+                        {/*                         <p className="text-gray-600 text-sm text-left mb-2">
                           📅 Fecha de Inicio: {formattedStartDate} -{" "}
                           {formattedStartTime}
                         </p>
                         <p className="text-gray-600 text-sm text-left">
                           📅 Fecha de Fin: {formattedEndDate} -{" "}
                           {formattedEndTime}
-                        </p>
+                        </p> */}
+
+                        {/*Adress*/}
+                        <h3 className="font-semibold text-xl text-center text-gray-800 mb-2"></h3>
                         {/* Botón de Like */}
                         <motion.button
                           onClick={() => handleLike(pub._id)}
@@ -560,34 +553,33 @@ const Home = () => {
                             />
                           )}
                         </motion.button>
+                        {/* Toggle Description Button */}
                         <button
-                          onClick={() => openModal(pub)} // Opens modal with selected publication data
+                          onClick={toggleDescription}
                           className="absolute bottom-4 right-4 bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700"
                         >
-                          Ver más
+                          {isDescriptionVisible ? "Ver menos" : "Ver más"}
                         </button>
-                        // Add the modal component to render when it is open
-                        {isModalOpen && (
-                          <Modal onClose={closeModal}>
-                            {/* Display the publication details in the modal */}
-                            <div className="p-4">
-                              {selectedPublication?.medias?.photos?.[0]
-                                ?.url && (
-                                <img
-                                  src={selectedPublication.medias.photos[0].url}
-                                  alt={selectedPublication.titles}
-                                  className="w-full h-60 object-cover rounded-lg"
+
+                        {/* Conditionally render description */}
+                        {isDescriptionVisible && (
+                          <>
+                            <p className="text-gray-700 mt-4">
+                              {pub.descriptions}
+                            </p>
+
+                            {/* Conditionally render map with publication's location */}
+                            {pub.locations && (
+                              <div className="mt-4">
+                                <Map
+                                  lat={pub.locations.lat}
+                                  lng={pub.locations.long}
                                 />
-                              )}
-                              <h3 className="text-xl font-bold mt-4">
-                                {selectedPublication?.titles}
-                              </h3>
-                              <p className="mt-2 text-gray-700">
-                                {selectedPublication?.descriptions}
-                              </p>
-                            </div>
-                          </Modal>
+                              </div>
+                            )}
+                          </>
                         )}
+                        {/* Map with publication's location */}
                       </motion.div>
                     );
                   })}

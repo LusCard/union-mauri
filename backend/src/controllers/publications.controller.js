@@ -9,12 +9,13 @@ import fs from "fs-extra";
 import { deleteImage, deleteVideo } from "../helpers/cloudinary.js";
 import { uploadImage, uploadVideo } from "../helpers/cloudinary.js";
 import color from "chalk";
+import { user } from "../models/user.model.js";
 
 export const publicationGetter = async (req, res) => {
   try {
     const publicCollections = await publications
       .find()
-      .populate("idUsers", "username email"); // Poblamos el campo idUsers
+      .populate("idUsers", "usernames emails profilePicture");
     if (publicCollections.length === 0)
       return res.status(404).json({ message: "No hay eventos que mostrar" });
     return res.status(200).json(publicCollections);
@@ -40,7 +41,7 @@ export const postFinderById = async (req, res) => {
 
     const publicationsSearched = await publications
       .findById(id)
-      .populate("idUsers", "username email"); // Poblamos el campo idUsers
+      .populate("idUsers", "usernames emails");
     if (!publicationsSearched)
       return res.status(404).json({ message: "El evento no existe" });
 
@@ -65,8 +66,6 @@ export const postCreator = async (req, res) => {
     const { titles, descriptions, category, startDates, endDates } = req.body;
     const { lat, long } = JSON.parse(req.body.locations);
     const idUser = req.user._id;
-
-    // Validar campos obligatorios
     if (
       !titles ||
       !descriptions ||
@@ -78,22 +77,17 @@ export const postCreator = async (req, res) => {
     ) {
       return res.status(400).json({ message: "Faltan campos obligatorios" });
     }
-
     const mediaFiles = req.files?.media
       ? Array.isArray(req.files.media)
         ? req.files.media
         : [req.files.media]
       : [];
-    console.log("Media Files:", mediaFiles);
-
     const photos = [];
     const videos = [];
-
     if (mediaFiles.length > 0) {
       await Promise.all(
         mediaFiles.map(async (file) => {
           try {
-            console.log("Processing file:", file);
             let result;
             if (file.mimetype.startsWith("image/")) {
               result = await uploadImage(file.tempFilePath);
@@ -109,7 +103,6 @@ export const postCreator = async (req, res) => {
               }); // Agrega objeto de video
             }
           } catch (uploadError) {
-            console.error("Error al procesar el archivo:", uploadError);
             throw new Error("Error al procesar el archivo multimedia");
           }
         })
@@ -117,7 +110,6 @@ export const postCreator = async (req, res) => {
     } else {
       console.log("No media files to process.");
     }
-
     const newPublication = new publications({
       titles,
       idUsers: idUser,
@@ -131,10 +123,7 @@ export const postCreator = async (req, res) => {
         videos,
       },
     });
-
     await newPublication.save();
-
-    // Mover la eliminación de archivos aquí para asegurarte de que solo se eliminen si la creación fue exitosa
     await Promise.all(mediaFiles.map((file) => fs.unlink(file.tempFilePath)));
 
     return res.status(201).json({
@@ -319,14 +308,14 @@ export const postRemover = async (req, res) => {
 export const categoryPostGetter = async (req, res) => {
   try {
     const { category } = req.params;
-    console.log("Categoría buscada:", category);
-    const publicationsSearched = await publications.find({ category }).exec();
+    const publicationsSearched = await publications
+      .find({ category: category })
+      .populate("idUsers", "username profilePicture");
     if (!publicationsSearched.length) {
       return res
         .status(404)
         .json({ message: "No hay eventos con esa categoría" });
     }
-    console.log(publicationsSearched);
     return res.status(200).json(publicationsSearched);
   } catch (error) {
     console.error(
@@ -335,22 +324,6 @@ export const categoryPostGetter = async (req, res) => {
     );
     return res.status(500).json({ message: "Error inesperado en el servidor" });
   }
-};
-
-export const findByUserId = (req, res) => {
-  const userId = req.params.userId;
-  console.log("ID de usuario buscado:", userId);
-  publications
-    .find({ user: userId })
-    .exec()
-    .then((publications) => res.status(200).json(publications))
-    .catch((err) => {
-      console.error(
-        "Error en el controlador para mostrar eventos por usuario:",
-        err
-      );
-      res.status(500).json({ message: "Error inesperado en el servidor" });
-    });
 };
 
 export const toggleLike = async (req, res) => {
@@ -384,4 +357,20 @@ export const toggleLike = async (req, res) => {
     console.error("Error al dar o quitar like", error);
     res.status(500).json({ message: "Error al actualizar el estado de like" });
   }
+};
+
+export const findByUserId = (req, res) => {
+  const userId = req.params.userId;
+  console.log("ID de usuario buscado:", userId);
+  publications
+    .find({ user: userId })
+    .exec()
+    .then((publications) => res.status(200).json(publications))
+    .catch((err) => {
+      console.error(
+        "Error en el controlador para mostrar eventos por usuario:",
+        err
+      );
+      res.status(500).json({ message: "Error inesperado en el servidor" });
+    });
 };

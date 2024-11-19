@@ -5,6 +5,7 @@ import color from "chalk"; // Assuming the model is named User.js
 import generateJWT from "../helpers/generateJWT.js";
 import { uploadImage } from "../helpers/cloudinary.js";
 import fs from "fs-extra";
+import { publications } from "../models/publications.model.js";
 
 export const register = async (req, res) => {
   try {

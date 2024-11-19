@@ -59,7 +59,6 @@ const Home = () => {
     setLoading(true);
     try {
       const response = await getUserPublications();
-      console.log("Publicaciones del usuario:", response);
       if (response && response.length > 0) {
         setUserPublications(response);
       } else {
@@ -402,6 +401,7 @@ const Home = () => {
                       (cat) => cat.id === pub.category
                     );
                     const user = pub.idUsers || {};
+                    console.log("Obiwan Kenobi", pub);
                     console.log("Para ver el nombre del owner", user);
                     return (
                       <motion.div
@@ -417,11 +417,11 @@ const Home = () => {
                             src={
                               user.profilePicture?.url || "/default-profile.png"
                             }
-                            alt={user.username || "Usuario desconocido"}
+                            alt={user.usernames || "Usuario desconocido"}
                             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
                           />
                           <span className="text-lg font-semibold text-gray-700">
-                            {user.username || "Usuario desconocido"}
+                            {user.usernames || "Usuario desconocido"}
                           </span>
                         </div>
                         {/* Medios de la publicación (imagen o video) */}

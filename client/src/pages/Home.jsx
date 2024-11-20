@@ -203,6 +203,7 @@ const Home = () => {
       );
     }
   };
+
   const handleLike = async (publicationId) => {
     try {
       const updatedPublication = await toggleLike(publicationId);

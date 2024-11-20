@@ -30,8 +30,8 @@ export const creatorRequest = async (req, res) => {
         ? req.files.media
         : [req.files.media]
       : [];
-    console.log("Media Files:", mediaFiles);
 
+    console.log("Media Files detected:", mediaFiles.length);
     const photos = [];
     const videos = [];
 
@@ -42,20 +42,24 @@ export const creatorRequest = async (req, res) => {
             console.log("Processing file:", file);
             let result;
             if (file.mimetype.startsWith("image/")) {
+              console.log("Uploading image:", file.tempFilePath);
               result = await uploadImage(file.tempFilePath);
+              console.log("Image uploaded successfully:", result);
               photos.push({
                 _id: new mongoose.Types.ObjectId().toString(),
                 url: result.secure_url,
-              }); // Agrega objeto de foto
+              });
             } else if (file.mimetype.startsWith("video/")) {
+              console.log("Uploading video:", file.tempFilePath);
               result = await uploadVideo(file.tempFilePath);
+              console.log("Video uploaded successfully:", result);
               videos.push({
                 _id: new mongoose.Types.ObjectId().toString(),
                 url: result.secure_url,
-              }); // Agrega objeto de video
+              });
             }
           } catch (uploadError) {
-            console.error("Error al procesar el archivo:", uploadError);
+            console.error("Error during file processing:", file, uploadError);
             throw new Error("Error al procesar el archivo multimedia");
           }
         })
@@ -77,9 +81,10 @@ export const creatorRequest = async (req, res) => {
         videos,
       },
     });
-    console.log("New Publication Request:", newPublicationRequest);
+    console.log("New Publication Request created:", newPublicationRequest);
 
     await newPublicationRequest.save();
+    console.log("Publication Request saved successfully.");
 
     // Mover la eliminación de archivos aquí para asegurarte de que solo se eliminen si la creación fue exitosa
     await Promise.all(mediaFiles.map((file) => fs.unlink(file.tempFilePath)));

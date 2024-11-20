@@ -13,7 +13,6 @@ export const UserProvider = ({ children }) => {
       try {
         const res = await getSession();
         setUser(res.user || null);
-        console.log("This comes from the context", res);
       } catch (error) {
         console.error("Error fetching session:", error);
       } finally {

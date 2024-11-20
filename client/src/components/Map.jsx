@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -64,11 +64,11 @@ const Map = ({ setAddress }) => {
     <div className="w-full h-96">
       <MapContainer
         center={initialPosition}
-        zoom={13} // Comenzar con un zoom más bajo
-        maxZoom={19} // Mantener el zoom máximo
-        style={{ height: "100%", width: "100%" }}
+        zoom={13} // Start with a lower zoom
+        maxZoom={19} // Maintain the maximum zoom level
+        style={{ height: "90%", width: "100%" }}
       >
-        {/* Usamos OpenStreetMap para los tiles */}
+        {/* Using OpenStreetMap tiles */}
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -77,18 +77,19 @@ const Map = ({ setAddress }) => {
         <LocationMarker />
         <Marker
           position={markerPosition}
-          draggable={true} // Hacer el marcador movible
+          draggable={true} // Make the marker draggable
           eventHandlers={{
-            dragend: handleMarkerDragEnd, // Maneja el evento cuando el marcador termina de moverse
+            dragend: handleMarkerDragEnd, // Handle when the marker is dragged
           }}
-          icon={customIcon} // Usar el ícono personalizado
+          icon={customIcon} // Use the custom icon
         />
       </MapContainer>
 
       {/* Display the address below the map */}
       <div className="mt-4 text-gray-700">
         <h3 className="font-semibold">Dirección:</h3>
-        <p>{address}</p>
+        {/* Show a loading state or a default message until the address is available */}
+        <p>{address ? address : "Cargando dirección..."}</p>
       </div>
     </div>
   );

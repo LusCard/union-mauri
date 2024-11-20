@@ -191,7 +191,7 @@ const Publish = () => {
 
       {/* Contenedor principal */}
       <div className="flex flex-col lg:flex-row items-start justify-center gap-8">
-        <div className="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-2xl border border-gray-200 ">
+        <div className="w-full h-full lg:w-1/3 bg-white p-6 rounded-lg shadow-2xl border border-gray-200 ">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Título */}
             <div className="mb-4">
@@ -308,17 +308,9 @@ const Publish = () => {
         {/* Contenedor de Mapa y Medios */}
         <div className="w-full lg:w-1/3 flex flex-col gap-6">
           {/* Mapa */}
-          <div className="bg-white p-4 rounded-lg shadow-2xl border border-gray-200 overflow-hidden">
+          <div className="bg-white p-4 h-[500px] rounded-lg shadow-2xl border border-gray-200 overflow-hidden">
             <Map setAddress={handleAddressUpdate} />
-            {/* Add some margin or padding below the map to create space */}
-            <div className="mt-4">
-              {/* Address Display */}
-              {validationErrors.locations && (
-                <p className="text-red-500 text-xs mt-1">
-                  {validationErrors.locations}
-                </p>
-              )}
-            </div>
+            {/* The address will be displayed within the Map component itself now */}
           </div>
 
           {/* Media */}

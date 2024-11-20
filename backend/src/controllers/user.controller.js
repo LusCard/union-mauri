@@ -268,7 +268,7 @@ export const getLoggedUser = async (req, res) => {
 
     const userLogged = await user
       .findById(id)
-      .select("username email profilePicture")
+      .select("usernames emails profilePicture likedPublications")
       .exec();
 
     if (!userLogged) {
@@ -276,9 +276,10 @@ export const getLoggedUser = async (req, res) => {
     }
 
     return res.status(200).json({
-      username: userLogged.username,
-      email: userLogged.email,
+      username: userLogged.usernames,
+      email: userLogged.emails,
       profilePicture: userLogged.profilePicture,
+      likedPublications: userLogged.likedPublications,
     });
   } catch (error) {
     console.error("Error al obtener el usuario logueado:", error);

@@ -13,9 +13,6 @@ const PrivateRoute = ({ children, requiredRoles }) => {
   if (!user) {
     return <Navigate to="/login" />;
   }
-  console.log("From private routes", user.role);
-
-  console.log("From private routes", requiredRoles);
 
   if (requiredRoles && !requiredRoles.includes(user.role)) {
     return <Navigate to="/" />;

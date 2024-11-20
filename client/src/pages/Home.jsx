@@ -34,10 +34,13 @@ const Home = () => {
   const [likedPublicationIds, setLikedPublicationIds] = useState(new Set());
   const [isMenuOpen, setIsMenuOpen] = useState(null);
   const [userPublications, setUserPublications] = useState(false);
-  const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
+  const [isDetailsVisible, setIsDetailsVisible] = useState({});
 
-  const toggleDescription = () => {
-    setIsDescriptionVisible(!isDescriptionVisible);
+  const toggleDetails = (id) => {
+    setIsDetailsVisible((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
   };
   const { user, load } = useContext(UserContext);
   const navigate = useNavigate();
@@ -75,7 +78,6 @@ const Home = () => {
   const fetchUser = async () => {
     try {
       const userData = await getLoggedUser();
-      console.log("Datos del usuario:", userData);
       setLoggedUser(userData);
       setEmail(userData.email);
       setUsername(userData.username);
@@ -401,8 +403,6 @@ const Home = () => {
                       (cat) => cat.id === pub.category
                     );
                     const user = pub.idUsers || {};
-                    console.log("Obiwan Kenobi", pub);
-                    console.log("Para ver el nombre del owner", user);
                     return (
                       <motion.div
                         key={pub._id}
@@ -542,7 +542,7 @@ const Home = () => {
                         {/* Botón de Like */}
                         <motion.button
                           onClick={() => handleLike(pub._id)}
-                          className="absolute bottom-6 right-6 bg-transparent flex items-center text-red-600 hover:text-red-800 transition-colors duration-300"
+                          className=" bottom-6 right-6 bg-transparent flex items-center text-red-600 hover:text-red-800 transition-colors duration-300"
                         >
                           {likedPublicationIds.has(pub._id) ? (
                             <span className="text-2xl">❤️</span>
@@ -555,14 +555,14 @@ const Home = () => {
                         </motion.button>
                         {/* Toggle Description Button */}
                         <button
-                          onClick={toggleDescription}
+                          onClick={() => toggleDetails(pub._id)}
                           className="absolute bottom-4 right-4 bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700"
                         >
-                          {isDescriptionVisible ? "Ver menos" : "Ver más"}
+                          {isDetailsVisible ? "Ver menos" : "Ver más"}
                         </button>
 
                         {/* Conditionally render description */}
-                        {isDescriptionVisible && (
+                        {isDetailsVisible[pub._id] && (
                           <>
                             <p className="text-gray-700 mt-4">
                               {pub.descriptions}
@@ -727,6 +727,9 @@ const Home = () => {
                             className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200"
                           >
                             Eliminar
+                          </button>
+                          <button className="block w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-200">
+                            Editar
                           </button>
                         </div>
                       )}
